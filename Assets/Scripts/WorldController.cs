@@ -5,115 +5,267 @@ using UnityEngine.Audio;
 
 public class WorldController : MonoBehaviour {
 
-    public int activeTile;
-    public int rowsGone;
-    public int currentRow;
-
     [SerializeField]
     private float top;
     [SerializeField]
     private float bottom;
     public float activePos;
     public float speed;
+    public GameObject emptyObj;
     public GameObject connection;
+    public GameObject fullSprite;
+    public GameObject[] sawObjects;
 
     [SerializeField]
     private int songLength;
 
-    public bool doubleKey;
     public List<Tile> activeTiles;
-    [HideInInspector]
+    private int activeTile;
+    private bool activatedTile;
+    public List<Tile> activeTiles2;
+    private int activeTile2;
+    private bool activatedTile2;
+
+    private bool miss;
+
+    [SerializeField]
+    private int rowsGone;
+    public bool doubleKey;
+
     public GameObject[] rows;
     [HideInInspector]
     public int activeRow;
 
+    public bool isGameActive;
+
+    public float totalAudioLength;
+    public float audioSourceLength;
+
+    //Audio
+    [HideInInspector]
+    public bool failedPlay;
     [HideInInspector]
     public bool isPlaying;
-    private AudioSource audio;
+    [HideInInspector]
+    public AudioSource audioSource;
     private float currentTime;
     private float addTime;
 
+    public CameraController cc;
+    public PlayerController pc;
+    public VideoController vc;
+    public UIController uic;
+
     // Use this for initialization
-    void Start () {
+    void Start() {
+        GameStart();
+    }
+
+    // Update is called once per frame
+    void Update() {
+        if (isGameActive)
+        {
+            Play();
+        }
+    }
+    void GameStart()
+    {
+        activeTiles = new List<Tile>();
+        activeTiles2 = new List<Tile>();
         PopulateMap();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        Play();
+        for (int i = 0; i < rows.Length; i++)
+        {
+            rows[i].GetComponent<RowController>().Disable();
+            rows[i].GetComponent<RowController>().Spawn();
+        }
+        vc.Switch(false);
+        foreach(GameObject saw in sawObjects)
+        {
+            saw.GetComponent<SawController>().isActive = true;
+        }
+    }
+    public void ActivateGame()
+    {
+        isGameActive = true;
+        vc.Switch(true);
+        foreach (GameObject saw in sawObjects)
+        {
+            saw.GetComponent<SawController>().isActive = false;
+        }
+    }
+    public void DeactivateGame()
+    {
+        if (isGameActive)
+        {
+            isGameActive = false;
+            vc.Switch(false);
+            StopSound();
+        }
     }
     void Play()
     {
-        if(activeTiles.Count > 0)
+        if (activeTiles.Count > 0)
         {
             MoveTiles();
-            if(rowsGone >= -Mathf.RoundToInt(activePos))
+            if (rowsGone >= -Mathf.RoundToInt(activePos))
             {
                 if (isPlaying == true)
                 {
                     addTime += Time.deltaTime;
                 }
                 activeTile = activeTiles[rowsGone + Mathf.RoundToInt(activePos)].pos;
-                if (activeTile == 0)
+                activeTile2 = activeTiles2[rowsGone + Mathf.RoundToInt(activePos)].pos;
+                if (activeTile == activeTile2)
                 {
-                    if (IsHold() == true)
+                    if(!activatedTile && !activatedTile2)
                     {
-                        if (Input.GetKey(KeyCode.Alpha1))
+                        if (CheckInput(activeTiles))
                         {
-                            PlaySound();
+                            KeyHit(activeTiles);
+                            activatedTile = true;
+                            activatedTile2 = true;
                         }
                     }
-                    else
-                    {
-                        if (Input.GetKeyDown(KeyCode.Alpha1))
-                        {
-                            PlaySound();
-                        }
-                    }
+
                 }
-                if (activeTile == 1)
+                else
                 {
-                    if (IsHold() == true)
+                    if (!activatedTile)
                     {
-                        if (Input.GetKey(KeyCode.Alpha2))
-                        {
-                            PlaySound();
-                        }
+                        activatedTile = CheckInput(activeTiles);
                     }
-                    else
+                    if (!activatedTile2)
                     {
-                        if (Input.GetKeyDown(KeyCode.Alpha2))
-                        {
-                            PlaySound();
-                        }
+                        activatedTile2 = CheckInput(activeTiles2);
                     }
-                }
-                if (activeTile == 2)
-                {
-                    if (IsHold() == true)
+                    if (activatedTile && activatedTile2)
                     {
-                        if (Input.GetKey(KeyCode.Alpha3))
-                        {
-                            PlaySound();
-                        }
-                    }
-                    else
-                    {
-                        if (Input.GetKeyDown(KeyCode.Alpha3))
-                        {
-                            PlaySound();
-                        }
+                        KeyHit(activeTiles);
                     }
                 }
             }
-
         }
+    }
+    bool CheckInput(List<Tile> tiles)
+    {
+        int currentActiveTile = tiles[rowsGone + Mathf.RoundToInt(activePos)].pos;
+        if (currentActiveTile == 0)
+        {
+            if (IsHold(tiles) == true)
+            {
+                if (Input.GetKeyUp(KeyCode.Alpha1))
+                {
+                    StopSound();
+                }
+                if (Input.GetKey(KeyCode.Alpha1))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1))
+                {
+                    return true;
+                }
+            }
+        }
+        if (currentActiveTile == 1)
+        {
+            if (IsHold(tiles) == true)
+            {
+                if (Input.GetKeyUp(KeyCode.Alpha2))
+                {
+                    StopSound();
+                }
+                if (Input.GetKey(KeyCode.Alpha2))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha2))
+                {
+                    return true;
+                }
+            }
+        }
+        if (currentActiveTile == 2)
+        {
+            if (IsHold(tiles) == true)
+            {
+                if (Input.GetKeyUp(KeyCode.Alpha3))
+                {
+                    StopSound();
+                }
+                if (Input.GetKey(KeyCode.Alpha3))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha3))
+                {
+                    return true;
+                }
+
+            }
+        }
+        if (currentActiveTile == 3)
+        {
+            if (IsHold(tiles) == true)
+            {
+                if (Input.GetKeyUp(KeyCode.Alpha4))
+                {
+                    StopSound();
+                }
+                if (Input.GetKey(KeyCode.Alpha4))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha4))
+                {
+                    return true;
+                }
+            }
+        }
+        if (currentActiveTile == 4)
+        {
+            if (IsHold(tiles) == true)
+            {
+                if (Input.GetKeyUp(KeyCode.Alpha5))
+                {
+                    StopSound();
+                }
+                if (Input.GetKey(KeyCode.Alpha5))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha5))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    bool CheckMiss(List<Tile> tiles)
+    {
+        return false;
     }
     void MoveTiles()
     {
         for(int i = 0; i < rows.Length; i++)
         {
-            if (rows[i].transform.position.z <= activePos && rows[i].transform.position.z > activePos - 0.1f)
+            if (rows[i].transform.position.z <= activePos && rows[i].transform.position.z > activePos - 0.3f)
             {
                 SetActiveRow(i);
             }
@@ -122,12 +274,25 @@ public class WorldController : MonoBehaviour {
                 ResetRow(i);
             }
         }
+        totalAudioLength = currentTime + addTime;
+        audioSourceLength = audioSource.clip.length;
+        if (currentTime + addTime >= audioSource.clip.length - 1.5f)
+        {
+            DeactivateGame();
+            GameStart();
+            currentTime = 0f;
+            addTime = 0f;
+            uic.EndGame();
+        }
+        if(rowsGone >= activeTiles.Count - 10)
+        {
+            PopulateMap();
+        }
     }
     void PopulateMap()
     {
         int rowLength = rows[0].GetComponent<RowController>().tiles.Length;
-        activeTiles = new List<Tile>();
-        audio = gameObject.GetComponent<AudioSource>();
+        audioSource = gameObject.GetComponent<AudioSource>();
         //songLength = Mathf.RoundToInt(audio.clip.length);
         for (int i = 0; i < songLength; i++)
         {
@@ -139,48 +304,142 @@ public class WorldController : MonoBehaviour {
                 tileObj.prev = true;
             }
             activeTiles.Add(tileObj);
+            int pos2 = Random.Range(0, rowLength);
+            int chance = Random.Range(0, 2);
+            if(chance == 0)
+            {
+                pos2 = pos;
+            }
+            Tile tileObj2 = new Tile(pos2);
+            if (i > 0 && activeTiles2[i - 1].pos == pos2)
+            {
+                activeTiles2[i - 1].next = true;
+                tileObj2.prev = true;
+            }
+            activeTiles2.Add(tileObj2);
         }
-        for(int i = 0; i < rows.Length; i++)
-        {
-            rows[i].GetComponent<RowController>().Disable();
-            rows[i].GetComponent<RowController>().Spawn();
-        }
+
     }
     void ResetRow(int row)
     {
         rowsGone++;
+        rows[row].GetComponent<RowController>().ClearTiles();
         rows[row].GetComponent<RowController>().SetTiles(activeTiles[rowsGone].pos, activeTiles[rowsGone].prev, activeTiles[rowsGone].next);
+        rows[row].GetComponent<RowController>().SetTiles(activeTiles2[rowsGone].pos, activeTiles2[rowsGone].prev, activeTiles2[rowsGone].next);
         rows[row].transform.position = new Vector3(rows[row].transform.position.x, rows[row].transform.position.y, top);
-        rows[row].GetComponent<RowController>().Enable();
+        activatedTile = false;
+        activatedTile2 = false;
         StopSound();
     }
     void SetActiveRow(int newActive)
     {
         activeRow = newActive;
     }
-    bool IsHold()
+    bool IsHold(List<Tile> list)
     {
-        if (activeTiles[rowsGone + Mathf.RoundToInt(activePos)].prev == true || activeTiles[rowsGone + Mathf.RoundToInt(activePos)].next == true)
+        if (list[rowsGone + Mathf.RoundToInt(activePos)].prev == true || list[rowsGone + Mathf.RoundToInt(activePos)].next == true)
         {
             return true;
         }
         return false;
     }
-    public void PlaySound()
+    void KeyHit(List<Tile> list)
     {
+        float distance = Mathf.Abs(rows[activeRow].transform.position.z + activePos);
+        if (!IsHold(list))
+        {
+            pc.AddScore(distance);
+        }
+        if (activeTile == activeTile2)
+        {
+            sawObjects[activeTile].GetComponent<SawController>().Activate();
+        }
+        else
+        {
+            if (activatedTile)
+            {
+                sawObjects[activeTile].GetComponent<SawController>().Activate();
+            }
+            if (activatedTile2)
+            {
+                sawObjects[activeTile2].GetComponent<SawController>().Activate();
+            }
+        }
+        PlaySound(list);
+        float time = Random.Range(0f, 0.5f);
+        rows[activeRow].GetComponent<RowController>().DestroyOnHit();
+    }
+    public void AssignAudio(AudioClip newClip)
+    {
+        StopSound();
+        audioSource.clip = newClip;
+        audioSource.pitch = 1f;
+        audioSource.time = 0f;
+        currentTime = 0f;
+        addTime = 0f;
+        PopulateMap();
+    }
+    public void PlaySound(List<Tile> list)
+    {
+        if (IsHold(list) == false)
+        {
+            int random = Random.Range(0, 10);
+            if (random == 0)
+            {
+                RandomPitch();
+            }
+            else if (random >= 8)
+            {
+                audioSource.pitch = 1f;
+            }
+        }
         if (isPlaying == false)
         {
             currentTime = currentTime + addTime;
-            audio.time = currentTime;
-            audio.Play();
+            audioSource.time = currentTime;
+            audioSource.Play();
             addTime = 0f;
-            rows[activeRow].GetComponent<RowController>().tiles[activeTiles[rowsGone + Mathf.RoundToInt(activePos)].pos].GetComponent<MeshRenderer>().material.color = Color.grey;
             isPlaying = true;
         }
+        if(isPlaying == true)
+        {
+            StopCoroutine("TurnVolumeDown");
+            audioSource.volume = 1f;
+        }
+        cc.Shake(0.5f);
+        StartCoroutine(cc.MakeShake(0.05f, 0.05f));
+        rows[activeRow].GetComponent<RowController>().tiles[activeTiles[rowsGone + Mathf.RoundToInt(activePos)].pos].GetComponent<MeshRenderer>().material.color = Color.grey;
     }
     public void StopSound()
     {
-        audio.Stop();
-        isPlaying = false;
+        if(audioSource.volume > 0.3f)
+        {
+            StartCoroutine("TurnVolumeDown");
+        }
+        else
+        {
+            audioSource.Stop();
+            isPlaying = false;
+        }
+    }
+    IEnumerator TurnVolumeDown()
+    {
+        yield return new WaitForSeconds(0.1f);
+        audioSource.volume -= 0.2f;
+        StopSound();
+    }
+    void FailPitch()
+    {
+        audioSource.pitch = -1.0f;
+        audioSource.Play();
+        addTime = 0f;
+        isPlaying = true;
+    }
+    void RandomPitch()
+    {
+        float random = Random.Range(0.6f, 0.9f);
+        cc.StartCoroutine("LessGlitch", random);
+        vc.SlowVideo(random);
+        audioSource.pitch = random;
     }
 }
