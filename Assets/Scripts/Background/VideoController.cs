@@ -1,19 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Video;
 
 public class VideoController : MonoBehaviour {
 
-    public VideoClip[] allVideos;
-    public Material white;
-    public Material black;
-
-    private VideoPlayer vp;
+    public int numOfAnimations;
+    private Animator animator;
 
 	// Use this for initialization
 	void Start () {
-        vp = gameObject.GetComponent<VideoPlayer>();
+        animator = gameObject.GetComponent<Animator>();
         StartCoroutine("PlayVideos");
     }
 	
@@ -22,29 +18,23 @@ public class VideoController : MonoBehaviour {
     {
         if (switchOn)
         {
-            gameObject.GetComponent<MeshRenderer>().material = white;
+            gameObject.GetComponent<SpriteRenderer>().color = Color.white;
         }
         else
         {
-            gameObject.GetComponent<MeshRenderer>().material = black;
+            gameObject.GetComponent<SpriteRenderer>().color = Color.black;
         }
-    }
-    VideoClip ChooseVideo()
-    {
-        int rVideo = Random.Range(0, allVideos.Length);
-        vp.playbackSpeed = Random.Range(0.5f, 1.5f);
-        vp.time = 1f;
-        return allVideos[rVideo];
     }
     IEnumerator PlayVideos()
     {
-        vp.clip = ChooseVideo();
-        float random = Random.Range(0.5f, (float)(vp.clip.length));
+        int rAnim = Random.Range(1, numOfAnimations);
+        animator.SetTrigger(rAnim.ToString());
+        float random = Random.Range(0.5f, (float)animator.GetCurrentAnimatorStateInfo(0).length);
         yield return new WaitForSeconds(random);
         StartCoroutine("PlayVideos");
     }
     public void SlowVideo(float speed)
     {
-        vp.playbackSpeed = speed;
+        //vp.playbackSpeed = speed;
     }
 }
