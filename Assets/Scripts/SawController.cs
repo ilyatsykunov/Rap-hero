@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// Controller for all visual effects of a saw
+/// </summary>
+///
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,6 +28,7 @@ public class SawController : MonoBehaviour {
             transform.Rotate(-30f, 0f, 0f);
         }
 	}
+    //Activate the saw on key press
     public void Activate() {
         bool loopVariable = particleObj.GetComponent<ParticleSystem>().main.loop;
         if (isActive)
@@ -40,6 +45,7 @@ public class SawController : MonoBehaviour {
         }
         particleObj.GetComponent<ParticleSystem>().Play();
     }
+    //Create a visual effect of flesh explosion
     void MeatExplosion()
     {
         if (meatObj.Count == 0)

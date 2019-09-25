@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// Controlls the 3D models used for tiles
+/// </summary>
+///
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +14,7 @@ public class TileController : MonoBehaviour {
     public List<GameObject> spawnedTileModels = new List<GameObject>();
     public List<GameObject> bloodObjects = new List<GameObject>();
 
+    //Create a blood stain on this tile using a prefab object
     public void MakeStain()
     {
         bloodObjects.Clear();
@@ -21,6 +26,7 @@ public class TileController : MonoBehaviour {
             bloodObjects.Add(newStain);
         }
     }
+    //Spawn all passible 3D models on this tile and disable them
     public void SpawnTileModels()
     {
         GameObject tileModelHolder = gameObject.transform.GetChild(0).gameObject;
@@ -33,6 +39,7 @@ public class TileController : MonoBehaviour {
             newModel.SetActive(false);
         }
     }
+    //Enable a random 3D object on this tile
     public void UpdateTileModels(bool isActive)
     {
         foreach(GameObject go in spawnedTileModels)
@@ -45,7 +52,7 @@ public class TileController : MonoBehaviour {
             spawnedTileModels[random].SetActive(true);
         }
     }
-
+    //Move the blood drops around to create a new unique stain
     public void UpdateStain(bool isActive, bool prev, bool next)
     {
         foreach (GameObject blood in bloodObjects)

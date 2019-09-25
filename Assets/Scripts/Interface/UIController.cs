@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// Contols everything related to the user inteface:
+///     Generation of buttons
+///     Interactions on click
+///     Interactions on hover
+/// </summary>
+///
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,6 +42,7 @@ public class UIController : MonoBehaviour {
             }
         }
     }
+    //Begins the game on click of button
     public void StartGame()
     {
         CameraController cc = Camera.main.GetComponent<CameraController>();
@@ -44,15 +52,18 @@ public class UIController : MonoBehaviour {
         MenuHolder.SetActive(false);
         GameObject.Find("Main").GetComponent<WorldController>().ActivateGame();
     }
+    //Resets the game and opens menu
     public void EndGame()
     {
         MenuHolder.SetActive(true);
         GameObject.Find("Main").GetComponent<WorldController>().DeactivateGame();
     }
+    //Exits to desktop
     public void ExitGame()
     {
         Application.Quit();
     }
+    //Generates a button for each song that is in the library
     void DisplayTracks()
     {
         for(int i = 0; i < tracks.Length; i++)
@@ -65,6 +76,7 @@ public class UIController : MonoBehaviour {
         }
         activeTrack = buttons[0];
     }
+    //Makes the panel with track buttons expand in width on hover
     public void ExpandTrackPanel()
     {
         foreach (GameObject btn in buttons)
@@ -79,6 +91,7 @@ public class UIController : MonoBehaviour {
             }
         }
     }
+    //Makes the panel with track buttons shrink in width on hover
     public void ShrinkTrackPanel()
     {
         foreach (GameObject btn in buttons)
@@ -93,6 +106,7 @@ public class UIController : MonoBehaviour {
             }
         }
     }
+    //Gradually increases the width of panel with track buttons
     public IEnumerator IncreaseIE(GameObject go, Vector2 targetSize)
     {
         if (go.GetComponent<RectTransform>().sizeDelta != targetSize) {
@@ -115,6 +129,7 @@ public class UIController : MonoBehaviour {
         }
 
     }
+    //Gradually decreases the width of panel with track buttons
     public IEnumerator ShrinkIE(GameObject go, Vector2 targetSize)
     {
         if (go.GetComponent<RectTransform>().sizeDelta != targetSize)

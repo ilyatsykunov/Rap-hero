@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// Controller for music selection button
+/// </summary>
+///
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -10,6 +14,7 @@ public class UIButton : MonoBehaviour {
     public WorldController wc;
     public CameraController cc;
 
+    //Assigns the chosen song as the active song and creates visual camera effects
     public void OnClick()
     {
         wc = GameObject.Find("Main").GetComponent<WorldController>();

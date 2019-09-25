@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// Displaying the keys pressed by the user through an interface element.
+/// </summary>
+///
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;

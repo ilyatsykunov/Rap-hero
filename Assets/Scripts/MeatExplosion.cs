@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// Creates a visual effect of flesh flying into the camera. 
+/// </summary>
+///
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 

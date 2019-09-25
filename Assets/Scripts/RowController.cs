@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// Controlls everything related to rows of tiles - movement of tiles and setting active tiles
+/// </summary>
+///
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,6 +23,7 @@ public class RowController : MonoBehaviour {
             transform.Translate(Vector3.back * Time.deltaTime * wc.speed);
         }
     }
+    //Unactivate each tile in a row
     public void Disable()
     {
         foreach (GameObject go in tiles)
@@ -27,6 +32,7 @@ public class RowController : MonoBehaviour {
             go.SetActive(false);
         }
     }
+    //Disable each tile in a row if user presses correct key
     public void DestroyOnHit()
     {
         foreach (GameObject go in tiles)
@@ -35,12 +41,14 @@ public class RowController : MonoBehaviour {
             StartCoroutine(DestroyCoroutine(go, time));
         }
     }
+    //Disable a tile after time specified 
     IEnumerator DestroyCoroutine(GameObject go, float time)
     {
         yield return new WaitForSeconds(time);
         enabled = false;
         go.transform.GetChild(0).gameObject.SetActive(false);
     }
+    //Enable each tile in a row
     public void Enable()
     {
         if(enabled == false)
@@ -53,6 +61,7 @@ public class RowController : MonoBehaviour {
         }
 
     }
+    //Disable all tiles and the 3D models assigned to each tile
     public void ClearTiles()
     {
         for (int i = 0; i < tiles.Length; i++)
@@ -61,6 +70,7 @@ public class RowController : MonoBehaviour {
             tiles[i].SetActive(false);
         }
     }
+    //Enable a tile and its 3D model according to its parameters
     public void SetTiles(int tile, bool prev, bool next)
     {
         tiles[tile].SetActive(true);
@@ -78,6 +88,7 @@ public class RowController : MonoBehaviour {
             tiles[tile].transform.GetChild(0).gameObject.SetActive(true);
         }
     }
+    //Initial spawn of all models for each tile
     public void Spawn()
     {
         for(int i = 0; i < tiles.Length; i++)

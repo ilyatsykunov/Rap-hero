@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// General controller for running the game, it is responsible for: 
+///     Initial world generation
+///     Moving tiles
+///     Checking user input 
+///     Playing sound
+/// </summary>
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -68,6 +75,7 @@ public class WorldController : MonoBehaviour {
             Play();
         }
     }
+    //Initial world generation, also used to restart the game
     void GameStart()
     {
         activeTiles = new List<Tile>();
@@ -84,6 +92,7 @@ public class WorldController : MonoBehaviour {
             saw.GetComponent<SawController>().isActive = true;
         }
     }
+    //Transition between main menu and playing the game
     public void ActivateGame()
     {
         isGameActive = true;
@@ -93,6 +102,7 @@ public class WorldController : MonoBehaviour {
             saw.GetComponent<SawController>().isActive = false;
         }
     }
+    //Stops the game and opens main menu
     public void DeactivateGame()
     {
         if (isGameActive)
@@ -102,6 +112,7 @@ public class WorldController : MonoBehaviour {
             StopSound();
         }
     }
+    //Main game loop
     void Play()
     {
         if (activeTiles.Count > 0)
@@ -146,6 +157,7 @@ public class WorldController : MonoBehaviour {
             }
         }
     }
+    //Check user input against the required input
     bool CheckInput(List<Tile> tiles)
     {
         int currentActiveTile = tiles[rowsGone + Mathf.RoundToInt(activePos)].pos;
@@ -257,10 +269,12 @@ public class WorldController : MonoBehaviour {
         }
         return false;
     }
+    //Check whether user pressed incorrect key
     bool CheckMiss(List<Tile> tiles)
     {
         return false;
     }
+    //Loop movement of tiles
     void MoveTiles()
     {
         for(int i = 0; i < rows.Length; i++)
@@ -289,6 +303,7 @@ public class WorldController : MonoBehaviour {
             PopulateMap();
         }
     }
+    //Create a map of positions of all tiles in the game
     void PopulateMap()
     {
         int rowLength = rows[0].GetComponent<RowController>().tiles.Length;
@@ -320,6 +335,7 @@ public class WorldController : MonoBehaviour {
         }
 
     }
+    //Move row of tiles to the end of the screen
     void ResetRow(int row)
     {
         rowsGone++;
@@ -335,6 +351,7 @@ public class WorldController : MonoBehaviour {
     {
         activeRow = newActive;
     }
+    //Tells if user is user required to hold a key
     bool IsHold(List<Tile> list)
     {
         if (list[rowsGone + Mathf.RoundToInt(activePos)].prev == true || list[rowsGone + Mathf.RoundToInt(activePos)].next == true)
@@ -343,6 +360,7 @@ public class WorldController : MonoBehaviour {
         }
         return false;
     }
+    //User pressed correct key 
     void KeyHit(List<Tile> list)
     {
         float distance = Mathf.Abs(rows[activeRow].transform.position.z + activePos);
@@ -369,6 +387,7 @@ public class WorldController : MonoBehaviour {
         float time = Random.Range(0f, 0.5f);
         rows[activeRow].GetComponent<RowController>().DestroyOnHit();
     }
+    //Set selected by the user song as currently played
     public void AssignAudio(AudioClip newClip)
     {
         StopSound();
@@ -379,6 +398,7 @@ public class WorldController : MonoBehaviour {
         addTime = 0f;
         PopulateMap();
     }
+    //Play a piece of the song with randomly selected pitch
     public void PlaySound(List<Tile> list)
     {
         if (IsHold(list) == false)
@@ -410,6 +430,7 @@ public class WorldController : MonoBehaviour {
         StartCoroutine(cc.MakeShake(0.05f, 0.05f));
         rows[activeRow].GetComponent<RowController>().tiles[activeTiles[rowsGone + Mathf.RoundToInt(activePos)].pos].GetComponent<MeshRenderer>().material.color = Color.grey;
     }
+    //Gradually decrease volume of the song and then stop playing it
     public void StopSound()
     {
         if(audioSource.volume > 0.3f)
@@ -422,12 +443,14 @@ public class WorldController : MonoBehaviour {
             isPlaying = false;
         }
     }
+    //Decrease volume every 0.1 of a second
     IEnumerator TurnVolumeDown()
     {
         yield return new WaitForSeconds(0.1f);
         audioSource.volume -= 0.2f;
         StopSound();
     }
+    //Sets the song to play in reverse if user presses wrong key
     void FailPitch()
     {
         audioSource.pitch = -1.0f;
@@ -435,6 +458,7 @@ public class WorldController : MonoBehaviour {
         addTime = 0f;
         isPlaying = true;
     }
+    //Creates random audio and video effects
     void RandomPitch()
     {
         float random = Random.Range(0.6f, 0.9f);

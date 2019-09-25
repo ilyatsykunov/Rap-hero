@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/// <summary>
+/// Controlls videos that are being played in the background 
+/// </summary>
+///
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,7 +17,7 @@ public class VideoController : MonoBehaviour {
         StartCoroutine("PlayVideos");
     }
 	
-	// Update is called once per frame
+	// Switch on/off for the background
 	public void Switch(bool switchOn)
     {
         if (switchOn)
@@ -25,6 +29,7 @@ public class VideoController : MonoBehaviour {
             gameObject.GetComponent<SpriteRenderer>().color = Color.black;
         }
     }
+    //Begins playing random video from the library
     IEnumerator PlayVideos()
     {
         int rAnim = Random.Range(1, numOfAnimations);
